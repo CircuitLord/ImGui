@@ -16,9 +16,13 @@
 THIRD_PARTY_INCLUDES_START
 #include <imgui.h>
 #include <imgui_internal.h>
+#if WITH_IMPLOT
 #include <implot.h>
+#endif
+#if WITH_NETIMGUI
 #define NETIMGUI_IMPLEMENTATION
-#include <NetImGui_Api.h>
+#include <NetImgui_Api.h>
+#endif
 THIRD_PARTY_INCLUDES_END
 
 #include "SImGuiOverlay.h"
@@ -334,11 +338,16 @@ void FImGuiContext::Initialize()
 	IMGUI_CHECKVERSION();
 
 	Context = ImGui::CreateContext();
+
+#if WITH_IMPLOT
 	PlotContext = ImPlot::CreateContext();
+#endif
 
 	ImGui::FScopedContext ScopedContext(AsShared());
 
+#if WITH_NETIMGUI
 	NetImgui::Startup();
+#endif
 
 	ImGuiIO& IO = ImGui::GetIO();
 	IO.UserData = this;
@@ -433,13 +442,17 @@ FImGuiContext::~FImGuiContext()
 		}
 	}
 
+#if WITH_NETIMGUI
 	NetImgui::Shutdown();
+#endif
 
+#if WITH_IMPLOT
 	if (PlotContext)
 	{
 		ImPlot::DestroyContext(PlotContext);
 		PlotContext = nullptr;
 	}
+#endif
 
 	if (Context)
 	{
@@ -448,7 +461,8 @@ FImGuiContext::~FImGuiContext()
 	}
 }
 
-bool FImGuiContext::Listen(int16 Port)
+#if WITH_NETIMGUI
+bool FImGuiContext::Listen(uint16 Port)
 {
 	ImGui::FScopedContext ScopedContext(AsShared());
 
@@ -495,7 +509,6 @@ bool FImGuiContext::Connect(const FString& Host, int16 Port)
 
 	return true;
 }
-
 void FImGuiContext::Disconnect()
 {
 	if (bIsRemote)
@@ -504,16 +517,19 @@ void FImGuiContext::Disconnect()
 		bIsRemote = false;
 	}
 }
+#endif
 
 FImGuiContext::operator ImGuiContext*() const
 {
 	return Context;
 }
 
+#if WITH_IMPLOT
 FImGuiContext::operator ImPlotContext*() const
 {
 	return PlotContext;
 }
+#endif
 
 void FImGuiContext::OnDisplayMetricsChanged(const FDisplayMetrics& DisplayMetrics)
 {
@@ -558,10 +574,17 @@ void FImGuiContext::OnDisplayMetricsChanged(const FDisplayMetrics& DisplayMetric
 
 void FImGuiContext::BeginFrame()
 {
-	if (Context->WithinFrameScope || (bIsRemote && !NetImgui::IsConnected()))
+	if (Context->WithinFrameScope)
 	{
 		return;
 	}
+
+#if WITH_NETIMGUI
+	if (bIsRemote && !NetImgui::IsConnected())
+	{
+		return;
+	}
+#endif
 
 	ImGui::FScopedContext ScopedContext(AsShared());
 
@@ -603,7 +626,9 @@ void FImGuiContext::EndFrame()
 	ImGui::Render();
 	ImGui::UpdatePlatformWindows();
 
+#if WITH_NETIMGUI
 	if (!bIsRemote)
+#endif
 	{
 		ImGui_RenderWindow(ImGui::GetMainViewport(), nullptr);
 		ImGui::RenderPlatformWindowsDefault();

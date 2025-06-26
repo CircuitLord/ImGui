@@ -2,6 +2,9 @@
 
 public class ImGui : ModuleRules
 {
+	protected virtual bool WithImPlot => true;
+	protected virtual bool WithNetImGui => true;
+
 	public ImGui(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
@@ -10,8 +13,6 @@ public class ImGui : ModuleRules
 		{
 			"Core",
 			"ImGuiLibrary",
-			"ImPlotLibrary",
-			"NetImGuiLibrary"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new[]
@@ -40,11 +41,28 @@ public class ImGui : ModuleRules
 			});
 		}
 
-		PublicDefinitions.AddRange(new[]
+		PublicDefinitions.Add("IMGUI_USER_CONFIG=\"ImGuiConfig.h\"");
+
+		if (WithImPlot)
 		{
-			"IMGUI_USER_CONFIG=\"ImGuiConfig.h\"",
-			"IMPLOT_API=IMGUI_API",
-			"NETIMGUI_API=IMGUI_API"
-		});
+			PublicDependencyModuleNames.Add("ImPlotLibrary");
+			PublicDefinitions.Add("IMPLOT_API=IMGUI_API");
+			PublicDefinitions.Add("WITH_IMPLOT=1");
+		}
+		else
+		{
+			PublicDefinitions.Add("WITH_IMPLOT=0");
+		}
+
+		if (WithNetImGui)
+		{
+			PublicDependencyModuleNames.Add("NetImGuiLibrary");
+			PublicDefinitions.Add("NETIMGUI_API=IMGUI_API");
+			PublicDefinitions.Add("WITH_NETIMGUI=1");
+		}
+		else
+		{
+			PublicDefinitions.Add("WITH_NETIMGUI=0");
+		}
 	}
 }

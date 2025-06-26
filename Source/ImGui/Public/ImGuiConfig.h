@@ -102,8 +102,12 @@ namespace ImGui
 
 	private:
 		TSharedPtr<FImGuiContext> Context = nullptr;
+
 		ImGuiContext* PrevContext = nullptr;
+
+#if WITH_IMPLOT
 		ImPlotContext* PrevPlotContext = nullptr;
+#endif
 	};
 
 	/// Converts ImGui key to UE key

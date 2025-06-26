@@ -41,20 +41,24 @@ public:
 	/// Ends the current frame
 	void EndFrame();
 
+#if WITH_NETIMGUI
 	/// Listens for remote connections
-	bool Listen(int16 Port);
+	bool Listen(uint16 Port);
 
 	/// Connects to a remote host
 	bool Connect(const FString& Host, int16 Port);
 
 	/// Closes all remote connections
 	void Disconnect();
+#endif
 
 	/// Access to the underlying ImGui context
 	operator ImGuiContext*() const;
 
+#if WITH_IMPLOT
 	/// Access to the underlying ImPlot context
 	operator ImPlotContext*() const;
+#endif
 
 private:
 	void Initialize();
@@ -62,13 +66,18 @@ private:
 	void OnDisplayMetricsChanged(const FDisplayMetrics& DisplayMetrics);
 
 	ImGuiContext* Context = nullptr;
+
+#if WITH_IMPLOT
 	ImPlotContext* PlotContext = nullptr;
+#endif
 
 	char IniFilenameUtf8[1024] = {};
 	char LogFilenameUtf8[1024] = {};
 	TArray<char> ClipboardBuffer;
 
+#if WITH_NETIMGUI
 	bool bIsRemote = false;
+#endif
 
 #if WITH_ENGINE
 	TStrongObjectPtr<UTexture2D> FontAtlasTexturePtr = nullptr;

@@ -14,9 +14,11 @@ THIRD_PARTY_INCLUDES_START
 #include <imgui_draw.cpp>
 #include <imgui_tables.cpp>
 #include <imgui_widgets.cpp>
+#if WITH_IMPLOT
 #include <implot.cpp>
 #include <implot_demo.cpp>
 #include <implot_items.cpp>
+#endif
 THIRD_PARTY_INCLUDES_END
 // ReSharper restore CppUnusedIncludeDirective
 
@@ -126,24 +128,32 @@ ImGui::FScopedContext::FScopedContext(const TSharedPtr<FImGuiContext>& InContext
 	: Context(InContext)
 {
 	PrevContext = GetCurrentContext();
+#if WITH_IMPLOT
 	PrevPlotContext = ImPlot::GetCurrentContext();
+#endif
 
 	if (Context.IsValid())
 	{
 		SetCurrentContext(*Context);
+#if WITH_IMPLOT
 		ImPlot::SetCurrentContext(*Context);
+#endif
 	}
 	else
 	{
 		SetCurrentContext(nullptr);
+#if WITH_IMPLOT
 		ImPlot::SetCurrentContext(nullptr);
+#endif
 	}
 }
 
 ImGui::FScopedContext::~FScopedContext()
 {
 	SetCurrentContext(PrevContext);
+#if WITH_IMPLOT
 	ImPlot::SetCurrentContext(PrevPlotContext);
+#endif
 }
 
 ImGui::FScopedContext::operator bool() const

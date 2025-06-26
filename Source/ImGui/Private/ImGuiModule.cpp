@@ -50,18 +50,6 @@ TSharedPtr<FImGuiContext> FImGuiModule::FindOrCreateSessionContext(const int32 P
 	TSharedPtr<FImGuiContext> Context = SessionContexts.FindRef(PieSessionId);
 	if (!Context.IsValid())
 	{
-		FString Host;
-		const bool bShouldConnect = FParse::Value(FCommandLine::Get(), TEXT("-ImGuiHost="), Host) && !Host.IsEmpty();
-
-		uint16 Port = bShouldConnect ? 8888 : 8889;
-		const bool bShouldListen = FParse::Value(FCommandLine::Get(), TEXT("-ImGuiPort="), Port) && Port != 0;
-
-		if (!bShouldConnect)
-		{
-			// Bind consecutive listen ports for PIE sessions
-			Port += PieSessionId + 1;
-		}
-
 #if WITH_EDITOR
 		if (GIsEditor && PieSessionId == INDEX_NONE)
 		{
@@ -91,12 +79,26 @@ TSharedPtr<FImGuiContext> FImGuiModule::FindOrCreateSessionContext(const int32 P
 
 		if (Context.IsValid())
 		{
+#if WITH_NETIMGUI
+			FString Host;
+			const bool bShouldConnect = FParse::Value(FCommandLine::Get(), TEXT("-ImGuiHost="), Host) && !Host.IsEmpty();
+
+			uint16 Port = bShouldConnect ? 8888 : 8889;
+			const bool bShouldListen = FParse::Value(FCommandLine::Get(), TEXT("-ImGuiPort="), Port) && Port != 0;
+
+			if (!bShouldConnect)
+			{
+				// Bind consecutive listen ports for PIE sessions
+				Port += PieSessionId + 1;
+			}
+
 			if ((bShouldConnect && !Context->Connect(Host, Port)) || (bShouldListen && !Context->Listen(Port)))
 			{
 				Context.Reset();
 				Context = nullptr;
 			}
 			else
+#endif
 			{
 				SessionContexts.Add(PieSessionId, Context);
 			}
