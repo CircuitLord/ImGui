@@ -16,7 +16,10 @@ THIRD_PARTY_INCLUDES_START
 #include <imgui_widgets.cpp>
 #if WITH_IMPLOT
 #include <implot.cpp>
+MSVC_PRAGMA(warning(push))
+MSVC_PRAGMA(warning(disable: 4756)) // overflow in constant arithmetic
 #include <implot_demo.cpp>
+MSVC_PRAGMA(warning(pop))
 #include <implot_items.cpp>
 #endif
 THIRD_PARTY_INCLUDES_END
