@@ -436,11 +436,14 @@ FImGuiContext::~FImGuiContext()
 
 	if (Context)
 	{
-		for (ImTextureData* TextureData : Context->PlatformIO.Textures)
+		if (!GExitPurge)
 		{
-			if (TextureData->RefCount == 1)
+			for (ImTextureData* TextureData : Context->PlatformIO.Textures)
 			{
-				DestroyTexture(TextureData);
+				if (TextureData->RefCount == 1)
+				{
+					DestroyTexture(TextureData);
+				}
 			}
 		}
 
