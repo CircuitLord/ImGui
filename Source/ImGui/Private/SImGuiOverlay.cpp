@@ -162,6 +162,33 @@ public:
 			return false;
 		}
 
+		const TSharedPtr<FSlateUser> SlateUser = SlateApp.GetUser(Event.GetUserIndex());
+		if (SlateUser.IsValid())
+		{
+			const FWeakWidgetPath LastWidgetsUnderPointer = SlateUser->GetLastWidgetsUnderPointer(Event.GetPointerIndex());
+			const TSharedPtr<SWindow> LastWindowUnderPointer = LastWidgetsUnderPointer.Window.Pin();
+
+			const ImGuiViewport* TargetViewport = nullptr;
+			if (LastWindowUnderPointer.IsValid())
+			{
+				for (ImGuiViewport* Viewport : ImGui::GetPlatformIO().Viewports)
+				{
+					const FImGuiViewportData* ViewportData = FImGuiViewportData::GetOrCreate(Viewport);
+					if (ViewportData->Window == LastWindowUnderPointer)
+					{
+						TargetViewport = Viewport;
+						break;
+					}
+				}
+			}
+
+			if (!TargetViewport && !ImGui::IsMouseDragging(0))
+			{
+				IO.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
+				return false;
+			}
+		}
+
 		FVector2f Position = Event.GetScreenSpacePosition();
 		if (!(IO.ConfigFlags & ImGuiConfigFlags_ViewportsEnable))
 		{
