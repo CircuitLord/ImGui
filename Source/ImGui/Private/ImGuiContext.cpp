@@ -26,6 +26,7 @@ THIRD_PARTY_INCLUDES_START
 THIRD_PARTY_INCLUDES_END
 
 #include "SImGuiOverlay.h"
+#include "SImGuiWindow.h"
 
 FImGuiViewportData* FImGuiViewportData::GetOrCreate(ImGuiViewport* Viewport)
 {
@@ -63,39 +64,9 @@ static void ImGui_CreateWindow(ImGuiViewport* Viewport)
 		const FImGuiViewportData* MainViewportData = FImGuiViewportData::GetOrCreate(ImGui::GetMainViewport());
 		const TSharedPtr<SWindow> ParentWindow = MainViewportData ? MainViewportData->Window.Pin() : nullptr;
 
-		const bool bTooltipWindow = (Viewport->Flags & ImGuiViewportFlags_TopMost);
-		const bool bPopupWindow = (Viewport->Flags & ImGuiViewportFlags_NoTaskBarIcon);
-		const bool bNoFocusOnAppearing = (Viewport->Flags & ImGuiViewportFlags_NoFocusOnAppearing);
-
-		// #TODO(Ves): Still blits a black background in the window frame :(
-		static FWindowStyle WindowStyle = FWindowStyle()
-		                                  .SetActiveTitleBrush(FSlateNoResource())
-		                                  .SetInactiveTitleBrush(FSlateNoResource())
-		                                  .SetFlashTitleBrush(FSlateNoResource())
-		                                  .SetOutlineBrush(FSlateNoResource())
-		                                  .SetBorderBrush(FSlateNoResource())
-		                                  .SetBackgroundBrush(FSlateNoResource())
-		                                  .SetChildBackgroundBrush(FSlateNoResource());
-
 		const TSharedRef<SWindow> Window =
-			SAssignNew(ViewportData->Window, SWindow)
-			.Type(bTooltipWindow ? EWindowType::ToolTip : EWindowType::Normal)
-			.Style(&WindowStyle)
-			.ScreenPosition(FVector2f(Viewport->Pos))
-			.ClientSize(FVector2f(Viewport->Size))
-			.SupportsTransparency(EWindowTransparency::PerWindow)
-			.SizingRule(ESizingRule::UserSized)
-			.IsPopupWindow(bTooltipWindow || bPopupWindow)
-			.IsTopmostWindow(bTooltipWindow)
-			.FocusWhenFirstShown(!bNoFocusOnAppearing)
-			.ActivationPolicy(bNoFocusOnAppearing ? EWindowActivationPolicy::Never : EWindowActivationPolicy::Always)
-			.HasCloseButton(false)
-			.SupportsMaximize(false)
-			.SupportsMinimize(false)
-			.CreateTitleBar(false)
-			.LayoutBorder(0)
-			.UserResizeBorder(0)
-			.UseOSWindowBorder(false)
+			SAssignNew(ViewportData->Window, SImGuiWindow)
+			.Viewport(Viewport)
 			[
 				SAssignNew(ViewportData->Overlay, SImGuiOverlay)
 				.Context(FImGuiContext::Get(ImGui::GetCurrentContext()))

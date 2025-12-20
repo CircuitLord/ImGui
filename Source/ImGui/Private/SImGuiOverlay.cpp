@@ -34,6 +34,9 @@ public:
 		Owner = InOwner;
 
 		FSlateApplication::Get().OnApplicationActivationStateChanged().AddRaw(this, &FImGuiInputProcessor::OnApplicationActivationChanged);
+		FSlateApplication::Get().OnFocusChanging().AddRaw(this, &FImGuiInputProcessor::OnFocusChanging);
+
+		LastFocusedWindow = FSlateApplication::Get().GetActiveTopLevelRegularWindow();
 	}
 
 	virtual ~FImGuiInputProcessor() override
@@ -41,6 +44,7 @@ public:
 		if (FSlateApplication::IsInitialized())
 		{
 			FSlateApplication::Get().OnApplicationActivationStateChanged().RemoveAll(this);
+			FSlateApplication::Get().OnFocusChanging().RemoveAll(this);
 		}
 	}
 
@@ -51,6 +55,18 @@ public:
 		ImGuiIO& IO = ImGui::GetIO();
 
 		IO.AddFocusEvent(bIsActive);
+	}
+
+	void OnFocusChanging(const FFocusEvent& Event, const FWeakWidgetPath& OldWidgetPath, const TSharedPtr<SWidget>& OldWidget, const FWidgetPath& NewWidgetPath, const TSharedPtr<SWidget>& NewWidget)
+	{
+		if (NewWidgetPath.IsValid())
+		{
+			LastFocusedWindow = NewWidgetPath.GetDeepestWindow();
+		}
+		else
+		{
+			LastFocusedWindow.Reset();
+		}
 	}
 
 	virtual void Tick(const float DeltaTime, FSlateApplication& SlateApp, TSharedRef<ICursor> SlateCursor) override
@@ -86,12 +102,12 @@ public:
 
 	virtual bool HandleKeyDownEvent(FSlateApplication& SlateApp, const FKeyEvent& Event) override
 	{
+		ImGui::FScopedContext ScopedContext(Owner->GetContext());
+
 		if (!ShouldHandleEvent(SlateApp, Event))
 		{
 			return false;
 		}
-
-		ImGui::FScopedContext ScopedContext(Owner->GetContext());
 
 		ImGuiIO& IO = ImGui::GetIO();
 
@@ -108,12 +124,12 @@ public:
 
 	virtual bool HandleKeyUpEvent(FSlateApplication& SlateApp, const FKeyEvent& Event) override
 	{
+		ImGui::FScopedContext ScopedContext(Owner->GetContext());
+
 		if (!ShouldHandleEvent(SlateApp, Event))
 		{
 			return false;
 		}
-
-		ImGui::FScopedContext ScopedContext(Owner->GetContext());
 
 		ImGuiIO& IO = ImGui::GetIO();
 
@@ -130,12 +146,12 @@ public:
 
 	virtual bool HandleAnalogInputEvent(FSlateApplication& SlateApp, const FAnalogInputEvent& Event) override
 	{
+		ImGui::FScopedContext ScopedContext(Owner->GetContext());
+
 		if (!ShouldHandleEvent(SlateApp, Event))
 		{
 			return false;
 		}
-
-		ImGui::FScopedContext ScopedContext(Owner->GetContext());
 
 		ImGuiIO& IO = ImGui::GetIO();
 
@@ -147,39 +163,24 @@ public:
 
 	virtual bool HandleMouseMoveEvent(FSlateApplication& SlateApp, const FPointerEvent& Event) override
 	{
+		ImGui::FScopedContext ScopedContext(Owner->GetContext());
+
 		if (!ShouldHandleEvent(SlateApp, Event))
 		{
 			return false;
 		}
 
-		ImGui::FScopedContext ScopedContext(Owner->GetContext());
-
 		ImGuiIO& IO = ImGui::GetIO();
-
-		if (SlateApp.HasAnyMouseCaptor())
-		{
-			IO.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
-			return false;
-		}
 
 		const TSharedPtr<FSlateUser> SlateUser = SlateApp.GetUser(Event.GetUserIndex());
 		if (SlateUser.IsValid())
 		{
-			const FWeakWidgetPath LastWidgetsUnderPointer = SlateUser->GetLastWidgetsUnderPointer(Event.GetPointerIndex());
-			const TSharedPtr<SWindow> LastWindowUnderPointer = LastWidgetsUnderPointer.Window.Pin();
+			const FImGuiViewportData* TargetViewport = nullptr;
 
-			const ImGuiViewport* TargetViewport = nullptr;
-			if (LastWindowUnderPointer.IsValid())
+			if (!SlateUser->HasCapture(Event.GetPointerIndex()))
 			{
-				for (ImGuiViewport* Viewport : ImGui::GetPlatformIO().Viewports)
-				{
-					const FImGuiViewportData* ViewportData = FImGuiViewportData::GetOrCreate(Viewport);
-					if (ViewportData->Window == LastWindowUnderPointer)
-					{
-						TargetViewport = Viewport;
-						break;
-					}
-				}
+				const FWeakWidgetPath LastWidgetsUnderPointer = SlateUser->GetLastWidgetsUnderPointer(Event.GetPointerIndex());
+				TargetViewport = FindViewportForWindow(LastWidgetsUnderPointer.Window.Pin());
 			}
 
 			if (!TargetViewport && !ImGui::IsMouseDragging(0))
@@ -203,12 +204,12 @@ public:
 
 	virtual bool HandleMouseButtonDownEvent(FSlateApplication& SlateApp, const FPointerEvent& Event) override
 	{
+		ImGui::FScopedContext ScopedContext(Owner->GetContext());
+
 		if (!ShouldHandleEvent(SlateApp, Event))
 		{
 			return false;
 		}
-
-		ImGui::FScopedContext ScopedContext(Owner->GetContext());
 
 		ImGuiIO& IO = ImGui::GetIO();
 
@@ -231,12 +232,12 @@ public:
 
 	virtual bool HandleMouseButtonUpEvent(FSlateApplication& SlateApp, const FPointerEvent& Event) override
 	{
+		ImGui::FScopedContext ScopedContext(Owner->GetContext());
+
 		if (!ShouldHandleEvent(SlateApp, Event))
 		{
 			return false;
 		}
-
-		ImGui::FScopedContext ScopedContext(Owner->GetContext());
 
 		ImGuiIO& IO = ImGui::GetIO();
 
@@ -265,12 +266,12 @@ public:
 
 	virtual bool HandleMouseWheelOrGestureEvent(FSlateApplication& SlateApp, const FPointerEvent& Event, const FPointerEvent* GestureEvent) override
 	{
+		ImGui::FScopedContext ScopedContext(Owner->GetContext());
+
 		if (!ShouldHandleEvent(SlateApp, Event))
 		{
 			return false;
 		}
-
-		ImGui::FScopedContext ScopedContext(Owner->GetContext());
 
 		ImGuiIO& IO = ImGui::GetIO();
 
@@ -289,11 +290,37 @@ public:
 		}
 #endif
 
+		if (Event.IsKeyEvent())
+		{
+			const FImGuiViewportData* FocusedViewport = FindViewportForWindow(LastFocusedWindow.Pin());
+			return FocusedViewport != nullptr;
+		}
+
 		return true;
+	}
+
+	static FImGuiViewportData* FindViewportForWindow(const TSharedPtr<SWindow>& Window)
+	{
+		if (!Window.IsValid())
+		{
+			return nullptr;
+		}
+
+		for (ImGuiViewport* Viewport : ImGui::GetPlatformIO().Viewports)
+		{
+			FImGuiViewportData* ViewportData = FImGuiViewportData::GetOrCreate(Viewport);
+			if (ViewportData->Window == Window)
+			{
+				return ViewportData;
+			}
+		}
+
+		return nullptr;
 	}
 
 private:
 	SImGuiOverlay* Owner = nullptr;
+	TWeakPtr<SWindow> LastFocusedWindow;
 };
 
 void SImGuiOverlay::Construct(const FArguments& Args)

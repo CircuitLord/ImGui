@@ -3,7 +3,9 @@
 #include <Framework/Application/IInputProcessor.h>
 #include <Widgets/SLeafWidget.h>
 
+THIRD_PARTY_INCLUDES_START
 #include <imgui.h>
+THIRD_PARTY_INCLUDES_END
 
 struct FImGuiDrawList
 {
