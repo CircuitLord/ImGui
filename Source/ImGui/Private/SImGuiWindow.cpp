@@ -46,13 +46,12 @@ void SImGuiWindow::Construct(const FArguments& Args)
 
 bool SImGuiWindow::OnIsActiveChanged(const FWindowActivateEvent& ActivateEvent)
 {
-	FWindowActivateEvent ModifiedActivateEvent(ActivateEvent);
-
 	// Force mouse activation to be handled as normal so focus is processed
-	if (ModifiedActivateEvent.GetActivationType() == FWindowActivateEvent::EA_ActivateByMouse)
+	if (ActivateEvent.GetActivationType() == FWindowActivateEvent::EA_ActivateByMouse)
 	{
-		ModifiedActivateEvent.SetActivationType(FWindowActivateEvent::EA_Activate);
+		const FWindowActivateEvent ModifiedActivateEvent(FWindowActivateEvent::EA_Activate, ActivateEvent.GetAffectedWindow());
+		return SWindow::OnIsActiveChanged(ModifiedActivateEvent);
 	}
 
-	return SWindow::OnIsActiveChanged(ModifiedActivateEvent);
+	return SWindow::OnIsActiveChanged(ActivateEvent);
 }
