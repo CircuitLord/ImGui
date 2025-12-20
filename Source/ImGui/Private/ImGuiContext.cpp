@@ -410,8 +410,10 @@ void FImGuiContext::Initialize()
 
 	if (FSlateApplication::IsInitialized())
 	{
+#if PLATFORM_DESKTOP
 		// Enable multi-viewports support for Slate applications
 		IO.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+#endif
 
 		if (const TSharedPtr<GenericApplication> PlatformApplication = FSlateApplication::Get().GetPlatformApplication())
 		{
