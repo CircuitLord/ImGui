@@ -708,7 +708,6 @@ void FImGuiContext::EndFrame()
 	ImGui::Render();
 	ImGui::UpdatePlatformWindows();
 
-	// #TODO: Probably don't need to handle textures when remote, check NetImGui when updated
 	for (ImTextureData* TextureData : ImGui::GetPlatformIO().Textures)
 	{
 		if (TextureData->Status == ImTextureStatus_WantCreate)

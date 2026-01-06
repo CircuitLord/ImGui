@@ -459,9 +459,7 @@ void SetBackground(const ImVec4& bgColor, const ImVec4& textureTint, ImTextureID
 	client.mBGSetting.mTextureTint[2]	= textureTint.z;
 	client.mBGSetting.mTextureTint[3]	= textureTint.w;
 
-	uint64_t texId64(0);
-	reinterpret_cast<ImTextureID*>(&texId64)[0] = bgTextureID;
-	client.mBGSetting.mTextureId		= texId64;
+	client.mBGSetting.mTextureId		= ConvertToClientTexID(bgTextureID);
 }
 
 #if NETIMGUI_IMGUI_TEXTURES_ENABLED
@@ -469,7 +467,7 @@ void SetBackground(const ImVec4& bgColor, const ImVec4& textureTint, ImTextureID
 void SetBackground(const ImVec4& bgColor, const ImVec4& textureTint, const ImTextureRef& bgTextureRef)
 //=================================================================================================
 {
-	SetBackground(bgColor, textureTint, ConvertToClientTexID(bgTextureRef));
+	SetBackground(bgColor, textureTint, bgTextureRef.GetTexID());
 }
 #endif
 

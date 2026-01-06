@@ -654,7 +654,7 @@ void ClientInfo::ContextRestore()
 				TexStatus != ImTextureStatus_WantDestroy )
 			{
 				ClientTextureRef._TexData = TexData;
-				TextureTrackingRem(ClientTextureRef.GetTexID());
+				TextureTrackingRem(ConvertToClientTexID(ClientTextureRef));
 			}
 		}
 		ImGui::GetStyle().FontScaleDpi = mFontSavedScaling;
@@ -704,8 +704,8 @@ void ClientInfo::TextureTrackingClear()
 			if (TexData->Status == ImTextureStatus_WantCreate )
 			{
 				IM_ASSERT(TexData->TexID == ImTextureID_Invalid && TexData->BackendUserData == nullptr);
-				static ImTextureID sUniqueID(1);
-				TexData->SetTexID(static_cast<ImTextureID>(sUniqueID++));
+				static ClientTextureID sUniqueID(1);
+				TexData->SetTexID(reinterpret_cast<ImTextureID>(sUniqueID++));
 				TexData->SetStatus(ImTextureStatus_OK);
 			}
 			else if (TexData->Status == ImTextureStatus_WantUpdates)
