@@ -10,9 +10,11 @@
 
 class FImGuiContext;
 class UTexture;
+struct FInputChord;
 struct FKey;
 struct FSlateBrush;
 enum ImGuiKey : int;
+typedef int ImGuiKeyChord;
 struct ImGuiContext;
 struct ImPlotContext;
 
@@ -110,8 +112,17 @@ namespace ImGui
 #endif
 	};
 
-	/// Converts ImGui key to UE key
+	/// Converts from UE to ImGui key
 	IMGUI_API ImGuiKey ConvertKey(const FKey& Key);
+
+	/// Converts from ImGui to UE key
+	IMGUI_API FKey ConvertKey(const ImGuiKey Key);
+
+	/// Converts from UE to ImGui key chord
+	IMGUI_API ImGuiKeyChord ConvertKeyChord(const FInputChord& Chord);
+
+	/// Converts from ImGui to UE key chord
+	IMGUI_API FInputChord ConvertKeyChord(const ImGuiKeyChord Chord);
 }
 
 #define IMGUI_INCLUDE_IMGUI_USER_H

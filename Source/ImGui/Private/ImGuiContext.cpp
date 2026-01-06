@@ -482,6 +482,7 @@ bool FImGuiContext::Connect(const FString& Host, int16 Port)
 
 	return true;
 }
+
 void FImGuiContext::Disconnect()
 {
 	if (bIsRemote)

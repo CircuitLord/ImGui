@@ -1,6 +1,7 @@
 #include "ImGuiConfig.h"
 
 #include <InputCoreTypes.h>
+#include <Framework/Commands/InputChord.h>
 #include <HAL/PlatformFileManager.h>
 
 #if WITH_ENGINE
@@ -259,16 +260,20 @@ ImGuiKey ImGui::ConvertKey(const FKey& Key)
 
 		{ EKeys::Apostrophe, ImGuiKey_Apostrophe },
 		{ EKeys::Comma, ImGuiKey_Comma },
+		{ EKeys::Hyphen, ImGuiKey_Minus },
 		{ EKeys::Period, ImGuiKey_Period },
 		{ EKeys::Slash, ImGuiKey_Slash },
 		{ EKeys::Semicolon, ImGuiKey_Semicolon },
+		{ EKeys::Equals, ImGuiKey_Equal },
 		{ EKeys::LeftBracket, ImGuiKey_LeftBracket },
 		{ EKeys::Backslash, ImGuiKey_Backslash },
 		{ EKeys::RightBracket, ImGuiKey_RightBracket },
+		{ EKeys::Tilde, ImGuiKey_GraveAccent },
 
 		{ EKeys::CapsLock, ImGuiKey_CapsLock },
 		{ EKeys::ScrollLock, ImGuiKey_ScrollLock },
 		{ EKeys::NumLock, ImGuiKey_NumLock },
+		// No mappable key for ImGuiKey_PrintScreen
 		{ EKeys::Pause, ImGuiKey_Pause },
 
 		{ EKeys::NumPadZero, ImGuiKey_Keypad0 },
@@ -287,7 +292,8 @@ ImGuiKey ImGui::ConvertKey(const FKey& Key)
 		{ EKeys::Multiply, ImGuiKey_KeypadMultiply },
 		{ EKeys::Subtract, ImGuiKey_KeypadSubtract },
 		{ EKeys::Add, ImGuiKey_KeypadAdd },
-		{ EKeys::Equals, ImGuiKey_KeypadEqual },
+		// No mappable key for ImGuiKey_KeypadEnter
+		// No mappable key for ImGuiKey_KeypadEqual
 
 		{ EKeys::Gamepad_Special_Right, ImGuiKey_GamepadStart },
 		{ EKeys::Gamepad_Special_Left, ImGuiKey_GamepadBack },
@@ -316,4 +322,176 @@ ImGuiKey ImGui::ConvertKey(const FKey& Key)
 	};
 
 	return KeyLookupMap.FindRef(Key, ImGuiKey_None);
+}
+
+FKey ImGui::ConvertKey(const ImGuiKey Key)
+{
+	static const TMap<ImGuiKey, FKey> KeyLookupMap = {
+		{ ImGuiKey_Tab, EKeys::Tab },
+
+		{ ImGuiKey_LeftArrow, EKeys::Left },
+		{ ImGuiKey_RightArrow, EKeys::Right },
+		{ ImGuiKey_UpArrow, EKeys::Up },
+		{ ImGuiKey_DownArrow, EKeys::Down },
+
+		{ ImGuiKey_PageUp, EKeys::PageUp },
+		{ ImGuiKey_PageDown, EKeys::PageDown },
+		{ ImGuiKey_Home, EKeys::Home },
+		{ ImGuiKey_End, EKeys::End },
+		{ ImGuiKey_Insert, EKeys::Insert },
+		{ ImGuiKey_Delete, EKeys::Delete },
+
+		{ ImGuiKey_Backspace, EKeys::BackSpace },
+		{ ImGuiKey_Space, EKeys::SpaceBar },
+		{ ImGuiKey_Enter, EKeys::Enter },
+		{ ImGuiKey_Escape, EKeys::Escape },
+
+		{ ImGuiKey_LeftCtrl, EKeys::LeftControl },
+		{ ImGuiKey_LeftShift, EKeys::LeftShift },
+		{ ImGuiKey_LeftAlt, EKeys::LeftAlt },
+		{ ImGuiKey_LeftSuper, EKeys::LeftCommand },
+		{ ImGuiKey_RightCtrl, EKeys::RightControl },
+		{ ImGuiKey_RightShift, EKeys::RightShift },
+		{ ImGuiKey_RightAlt, EKeys::RightAlt },
+		{ ImGuiKey_RightSuper, EKeys::RightCommand },
+
+		{ ImGuiKey_0, EKeys::Zero },
+		{ ImGuiKey_1, EKeys::One },
+		{ ImGuiKey_2, EKeys::Two },
+		{ ImGuiKey_3, EKeys::Three },
+		{ ImGuiKey_4, EKeys::Four },
+		{ ImGuiKey_5, EKeys::Five },
+		{ ImGuiKey_6, EKeys::Six },
+		{ ImGuiKey_7, EKeys::Seven },
+		{ ImGuiKey_8, EKeys::Eight },
+		{ ImGuiKey_9, EKeys::Nine },
+
+		{ ImGuiKey_A, EKeys::A },
+		{ ImGuiKey_B, EKeys::B },
+		{ ImGuiKey_C, EKeys::C },
+		{ ImGuiKey_D, EKeys::D },
+		{ ImGuiKey_E, EKeys::E },
+		{ ImGuiKey_F, EKeys::F },
+		{ ImGuiKey_G, EKeys::G },
+		{ ImGuiKey_H, EKeys::H },
+		{ ImGuiKey_I, EKeys::I },
+		{ ImGuiKey_J, EKeys::J },
+		{ ImGuiKey_K, EKeys::K },
+		{ ImGuiKey_L, EKeys::L },
+		{ ImGuiKey_M, EKeys::M },
+		{ ImGuiKey_N, EKeys::N },
+		{ ImGuiKey_O, EKeys::O },
+		{ ImGuiKey_P, EKeys::P },
+		{ ImGuiKey_Q, EKeys::Q },
+		{ ImGuiKey_R, EKeys::R },
+		{ ImGuiKey_S, EKeys::S },
+		{ ImGuiKey_T, EKeys::T },
+		{ ImGuiKey_U, EKeys::U },
+		{ ImGuiKey_V, EKeys::V },
+		{ ImGuiKey_W, EKeys::W },
+		{ ImGuiKey_X, EKeys::X },
+		{ ImGuiKey_Y, EKeys::Y },
+		{ ImGuiKey_Z, EKeys::Z },
+
+		{ ImGuiKey_F1, EKeys::F1 },
+		{ ImGuiKey_F2, EKeys::F2 },
+		{ ImGuiKey_F3, EKeys::F3 },
+		{ ImGuiKey_F4, EKeys::F4 },
+		{ ImGuiKey_F5, EKeys::F5 },
+		{ ImGuiKey_F6, EKeys::F6 },
+		{ ImGuiKey_F7, EKeys::F7 },
+		{ ImGuiKey_F8, EKeys::F8 },
+		{ ImGuiKey_F9, EKeys::F9 },
+		{ ImGuiKey_F10, EKeys::F10 },
+		{ ImGuiKey_F11, EKeys::F11 },
+		{ ImGuiKey_F12, EKeys::F12 },
+
+		{ ImGuiKey_Apostrophe, EKeys::Apostrophe },
+		{ ImGuiKey_Comma, EKeys::Comma },
+		{ ImGuiKey_Minus, EKeys::Hyphen },
+		{ ImGuiKey_Period, EKeys::Period },
+		{ ImGuiKey_Slash, EKeys::Slash },
+		{ ImGuiKey_Semicolon, EKeys::Semicolon },
+		{ ImGuiKey_Equal, EKeys::Equals },
+		{ ImGuiKey_LeftBracket, EKeys::LeftBracket },
+		{ ImGuiKey_Backslash, EKeys::Backslash },
+		{ ImGuiKey_RightBracket, EKeys::RightBracket },
+		{ ImGuiKey_GraveAccent, EKeys::Tilde },
+
+		{ ImGuiKey_CapsLock, EKeys::CapsLock },
+		{ ImGuiKey_ScrollLock, EKeys::ScrollLock },
+		{ ImGuiKey_NumLock, EKeys::NumLock },
+		// No mappable key for ImGuiKey_PrintScreen
+		{ ImGuiKey_Pause, EKeys::Pause },
+
+		{ ImGuiKey_Keypad0, EKeys::NumPadZero },
+		{ ImGuiKey_Keypad1, EKeys::NumPadOne },
+		{ ImGuiKey_Keypad2, EKeys::NumPadTwo },
+		{ ImGuiKey_Keypad3, EKeys::NumPadThree },
+		{ ImGuiKey_Keypad4, EKeys::NumPadFour },
+		{ ImGuiKey_Keypad5, EKeys::NumPadFive },
+		{ ImGuiKey_Keypad6, EKeys::NumPadSix },
+		{ ImGuiKey_Keypad7, EKeys::NumPadSeven },
+		{ ImGuiKey_Keypad8, EKeys::NumPadEight },
+		{ ImGuiKey_Keypad9, EKeys::NumPadNine },
+
+		{ ImGuiKey_KeypadDecimal, EKeys::Decimal },
+		{ ImGuiKey_KeypadDivide, EKeys::Divide },
+		{ ImGuiKey_KeypadMultiply, EKeys::Multiply },
+		{ ImGuiKey_KeypadSubtract, EKeys::Subtract },
+		{ ImGuiKey_KeypadAdd, EKeys::Add },
+		// No mappable key for ImGuiKey_KeypadEnter
+		// No mappable key for ImGuiKey_KeypadEqual
+
+		{ ImGuiKey_GamepadStart, EKeys::Gamepad_Special_Right },
+		{ ImGuiKey_GamepadBack, EKeys::Gamepad_Special_Left },
+		{ ImGuiKey_GamepadFaceLeft, EKeys::Gamepad_FaceButton_Left },
+		{ ImGuiKey_GamepadFaceRight, EKeys::Gamepad_FaceButton_Right },
+		{ ImGuiKey_GamepadFaceUp, EKeys::Gamepad_FaceButton_Top },
+		{ ImGuiKey_GamepadFaceDown, EKeys::Gamepad_FaceButton_Bottom },
+		{ ImGuiKey_GamepadDpadLeft, EKeys::Gamepad_DPad_Left },
+		{ ImGuiKey_GamepadDpadRight, EKeys::Gamepad_DPad_Right },
+		{ ImGuiKey_GamepadDpadUp, EKeys::Gamepad_DPad_Up },
+		{ ImGuiKey_GamepadDpadDown, EKeys::Gamepad_DPad_Down },
+		{ ImGuiKey_GamepadL1, EKeys::Gamepad_LeftShoulder },
+		{ ImGuiKey_GamepadR1, EKeys::Gamepad_RightShoulder },
+		{ ImGuiKey_GamepadL2, EKeys::Gamepad_LeftTrigger },
+		{ ImGuiKey_GamepadR2, EKeys::Gamepad_RightTrigger },
+		{ ImGuiKey_GamepadL3, EKeys::Gamepad_LeftThumbstick },
+		{ ImGuiKey_GamepadR3, EKeys::Gamepad_RightThumbstick },
+		{ ImGuiKey_GamepadLStickLeft, EKeys::Gamepad_LeftStick_Left },
+		{ ImGuiKey_GamepadLStickRight, EKeys::Gamepad_LeftStick_Right },
+		{ ImGuiKey_GamepadLStickUp, EKeys::Gamepad_LeftStick_Up },
+		{ ImGuiKey_GamepadLStickDown, EKeys::Gamepad_LeftStick_Down },
+		{ ImGuiKey_GamepadRStickLeft, EKeys::Gamepad_RightStick_Left },
+		{ ImGuiKey_GamepadRStickRight, EKeys::Gamepad_RightStick_Right },
+		{ ImGuiKey_GamepadRStickUp, EKeys::Gamepad_RightStick_Up },
+		{ ImGuiKey_GamepadRStickDown, EKeys::Gamepad_RightStick_Down }
+	};
+
+	return KeyLookupMap.FindRef(Key, EKeys::Invalid);
+}
+
+ImGuiKeyChord ImGui::ConvertKeyChord(const FInputChord& Chord)
+{
+	ImGuiKeyChord Result = ConvertKey(Chord.Key);
+
+	Result |= Chord.bCtrl ? ImGuiMod_Ctrl : 0;
+	Result |= Chord.bShift ? ImGuiMod_Shift : 0;
+	Result |= Chord.bAlt ? ImGuiMod_Alt : 0;
+	Result |= Chord.bCmd ? ImGuiMod_Super : 0;
+
+	return Result;
+}
+
+FInputChord ImGui::ConvertKeyChord(const ImGuiKeyChord Chord)
+{
+	FInputChord Result = ConvertKey(static_cast<ImGuiKey>(Chord & ~ImGuiMod_Mask_));
+
+	Result.bCtrl = (Chord & ImGuiMod_Ctrl) != 0;
+	Result.bShift = (Chord & ImGuiMod_Shift) != 0;
+	Result.bAlt = (Chord & ImGuiMod_Alt) != 0;
+	Result.bCmd = (Chord & ImGuiMod_Super) != 0;
+
+	return Result;
 }
