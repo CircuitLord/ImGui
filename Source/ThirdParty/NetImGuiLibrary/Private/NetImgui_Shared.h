@@ -35,6 +35,7 @@ namespace NetImgui { namespace Internal
 
 using				ComDataType = uint64_t;
 constexpr size_t	ComDataSize = sizeof(ComDataType);
+using 				ClientTextureID = uint64_t;
 
 //=============================================================================
 // All allocations made by netImgui goes through here. 
@@ -94,6 +95,7 @@ public:
 	inline TType*		Release();
 	inline void			Assign(TType*& pNewData);
 	inline void			Free();
+	inline bool 		IsNull()const { return mpData.load() == nullptr; }
 private:						
 	std::atomic<TType*> mpData;
 
@@ -187,9 +189,13 @@ IntType DivUp(IntType Value, IntType Denominator);
 template <typename IntType>
 IntType RoundUp(IntType Value, IntType Round);
 
-inline uint64_t TextureCastFromID(ImTextureID textureID);
-inline ImTextureID TextureCastFromPtr(void* pTexture);
-inline ImTextureID TextureCastFromUInt(uint64_t textureID);
+
+#if NETIMGUI_IMGUI_TEXTURES_ENABLED
+inline NetImgui::eTexFormat ConvertTextureFormat(ImTextureFormat ImFormat);
+inline ClientTextureID 	ConvertToClientTexID(const ImTextureRef& textureRef);
+#endif
+inline ClientTextureID 	ConvertToClientTexID(ImTextureID textureID);
+inline ImTextureID 		ConvertFromClientTexID(ClientTextureID textureID);
 
 }} //namespace NetImgui::Internal
 

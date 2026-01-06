@@ -3,18 +3,6 @@
 
 namespace NetImgui { namespace Internal { namespace Client {
 
-void ClientTexture::Set( CmdTexture* pCmdTexture )
-{
-	netImguiDeleteSafe(mpCmdTexture);
-	mpCmdTexture	= pCmdTexture;
-	mbSent			= pCmdTexture == nullptr;
-}
-
-bool ClientTexture::IsValid()const
-{
-	return mpCmdTexture != nullptr;
-}
-
 bool ClientInfo::IsConnected()const
 {
 	return mpSocketComs.load() != nullptr;
@@ -22,36 +10,12 @@ bool ClientInfo::IsConnected()const
 
 bool ClientInfo::IsConnectPending()const
 {
-	return mpSocketPending.load() != nullptr || mpSocketListen.load() != nullptr;
+	return mbComInitActive || mpSocketPending.load() != nullptr || mpSocketListen.load() != nullptr;
 }
 
 bool ClientInfo::IsActive()const
 {
 	return mbClientThreadActive || mbListenThreadActive;
-}
-
-void ClientInfo::KillSocketComs()
-{
-	Network::SocketInfo* pSocket = mpSocketPending.exchange(nullptr);
-	if (pSocket)
-	{
-		NetImgui::Internal::Network::Disconnect(pSocket);
-	}
-
-	pSocket = mpSocketComs.exchange(nullptr);
-	if (pSocket)
-	{
-		NetImgui::Internal::Network::Disconnect(pSocket);
-	}
-}
-
-void ClientInfo::KillSocketListen()
-{
-	Network::SocketInfo* pSocket = mpSocketListen.exchange(nullptr);
-	if (pSocket)
-	{
-		NetImgui::Internal::Network::Disconnect(pSocket);
-	}
 }
 
 bool ClientInfo::IsContextOverriden()const
