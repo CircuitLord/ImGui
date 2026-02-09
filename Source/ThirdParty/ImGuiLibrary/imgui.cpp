@@ -4955,7 +4955,7 @@ bool ImGui::ItemHoverable(const ImRect& bb, ImGuiID id, ImGuiItemFlags item_flag
         if (item_flags & ImGuiItemFlags_AllowOverlap)
         {
             g.HoveredIdAllowOverlap = true;
-            if (g.HoveredIdPreviousFrame != id)
+            if (g.HoveredIdPreviousFrame != id && g.HoveredIdPreviousFrame != 0)
                 return false;
         }
 

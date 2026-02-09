@@ -213,6 +213,14 @@ public:
 
 		ImGuiIO& IO = ImGui::GetIO();
 
+		// Ensure mouse position is queued before the click so hover detection is current
+		FVector2f Position = Event.GetScreenSpacePosition();
+		if (!(IO.ConfigFlags & ImGuiConfigFlags_ViewportsEnable))
+		{
+			Position -= Owner->GetTickSpaceGeometry().AbsolutePosition;
+		}
+		IO.AddMousePosEvent(Position.X, Position.Y);
+
 		const FKey Button = Event.GetEffectingButton();
 		if (Button == EKeys::LeftMouseButton)
 		{
@@ -293,6 +301,12 @@ public:
 		if (Event.IsKeyEvent())
 		{
 			const FImGuiViewportData* FocusedViewport = FindViewportForWindow(LastFocusedWindow.Pin());
+			if (!FocusedViewport)
+			{
+				// Fall back to active top-level window when keyboard focus has been cleared
+				// (e.g. via FSlateApplication::ClearKeyboardFocus) but the app still has focus
+				FocusedViewport = FindViewportForWindow(SlateApp.GetActiveTopLevelRegularWindow());
+			}
 			return FocusedViewport != nullptr;
 		}
 
