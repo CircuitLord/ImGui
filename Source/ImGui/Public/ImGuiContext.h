@@ -36,6 +36,8 @@ public:
 
 	~FImGuiContext();
 
+	bool bShareKeyboardInput = false;
+
 	/// Begins a new frame
 	void BeginFrame();
 

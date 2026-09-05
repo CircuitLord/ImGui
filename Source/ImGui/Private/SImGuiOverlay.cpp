@@ -93,6 +93,11 @@ public:
 			SlateCursor->SetPosition(Position.X, Position.Y);
 		}
 
+		if (Owner->GetContext()->bShareKeyboardInput && !IO.WantTextInput && Owner->HasKeyboardFocus())
+		{
+			SlateApp.SetAllUserFocusToGameViewport();
+		}
+
 		if (IO.WantTextInput && !Owner->HasKeyboardFocus())
 		{
 			// No HandleKeyCharEvent so punt focus to the widget for it to receive OnKeyChar events
@@ -119,7 +124,7 @@ public:
 		IO.AddKeyEvent(ImGuiMod_Alt, ModifierKeys.IsAltDown());
 		IO.AddKeyEvent(ImGuiMod_Super, ModifierKeys.IsCommandDown());
 
-		return IO.WantCaptureKeyboard;
+		return IO.WantCaptureKeyboard && !Owner->GetContext()->bShareKeyboardInput;
 	}
 
 	virtual bool HandleKeyUpEvent(FSlateApplication& SlateApp, const FKeyEvent& Event) override
@@ -141,7 +146,7 @@ public:
 		IO.AddKeyEvent(ImGuiMod_Alt, ModifierKeys.IsAltDown());
 		IO.AddKeyEvent(ImGuiMod_Super, ModifierKeys.IsCommandDown());
 
-		return IO.WantCaptureKeyboard;
+		return IO.WantCaptureKeyboard && !Owner->GetContext()->bShareKeyboardInput;
 	}
 
 	virtual bool HandleAnalogInputEvent(FSlateApplication& SlateApp, const FAnalogInputEvent& Event) override
@@ -158,7 +163,7 @@ public:
 		const float Value = Event.GetAnalogValue();
 		IO.AddKeyAnalogEvent(ImGui::ConvertKey(Event.GetKey()), FMath::Abs(Value) > 0.1f, Value);
 
-		return IO.WantCaptureKeyboard;
+		return IO.WantCaptureKeyboard && !Owner->GetContext()->bShareKeyboardInput;
 	}
 
 	virtual bool HandleMouseMoveEvent(FSlateApplication& SlateApp, const FPointerEvent& Event) override
